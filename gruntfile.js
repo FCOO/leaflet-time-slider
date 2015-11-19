@@ -158,7 +158,8 @@ module.exports = function(grunt) {
 
 
 			//Copies alle files in src to temp, incl '_*.*' but NOT *.min.js/css
-			src_to_temp							: { expand: true,		filter: 'isFile',	cwd: 'src/',				src: ['**/*.*', '!**/*.min.js', '!**/*.min.css'],	dest: 'temp'	},
+			//Copies alle files in src to temp, excl. '_*.*' and *.min.js/css
+			src_to_temp							: { expand: true,		filter: 'isFile',	cwd: 'src/',				src: srcExclude_(['**/*.*', '!**/*.min.js', '!**/*.min.css']),	dest: 'temp'	},
 			
 			//Copy all *.js and *.css from temp_dist to dist
 			temp_dist_jscss_to_dist	: { expand: false,	filter: 'isFile',	cwd: 'temp_dist/',	src: ['*.js', '*.css'],	dest: 'dist'	},
@@ -476,7 +477,7 @@ module.exports = function(grunt) {
 			bwr.version = newVersion;
 		} 
 		else 
-			commitMessage = '-m "' + (promptMessage || '* No message *') +'"';
+			commitMessage = ' -m "' + (promptMessage || '* No message *') +'"';
 
 		//Build application/packages
 		if (grunt.config('build')){
