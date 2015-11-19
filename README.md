@@ -1,9 +1,11 @@
 # leaflet-time-slider
 >
+[jquery-time-slider]:https://github.com/FCOO/leaflet-time-slider
+[jquery-control-box]:https://github.com/FCOO/leaflet-control-box
 
 
 ## Description
-This package is used for...
+Creates a [jquery-time-slider] in a [jquery-control-box] 
 
 ## Installation
 ### bower
@@ -13,7 +15,20 @@ This package is used for...
 http://FCOO.github.io/leaflet-time-slider/demo/ 
 
 ## Usage
-```var myControl.TimeSlider = new Control.TimeSlider( options );```
+
+	var myTimeSliderControl = new L.Control.TimeSlider({
+		  lang: lang,
+		  position: 'topright',
+		  defaultMinimized: false,
+		  displayAsLocal	: false,
+
+		  minMoment	: moment().add(-1, 'd'), 
+		  maxMoment	: moment().add(2, 'd'), 
+		  fromMoment: moment(),
+		  step			: 1,
+
+		  callback: function( result ){ console.log(result); } 
+		}).addTo(map);
 
 
 ### options
@@ -26,17 +41,77 @@ http://FCOO.github.io/leaflet-time-slider/demo/
 </tr>
 
 <tr>
-<td>options1</td>
-<td>boolean</td>
-<td>true</td>
-<td>If <code>true</code> the ...</td>
+	<td>lang</td>
+	<td>string</td>
+	<td>"da"</td>
+	<td>Language-code "da" or "en"</td>
+</tr>
+
+<tr>
+	<td>position</td>
+	<td>string</td>
+	<td></td>
+	<td>[http://leafletjs.com/reference.html#control-positions](Leaflet control-position)</td>
+</tr>
+
+<tr>
+	<td>defaultMinimized</td>
+	<td>boolean</td>
+	<td>false</td>
+	<td>If true the control is closed/hidden on load</td>
+</tr>
+
+<tr>
+	<td>displayAsLocal</td>
+	<td>boolean</td>
+	<td>false</td>
+	<td>If true the time is displayed in local time on load</td>
+</tr>
+
+<tr>
+	<td>minMoment</td>
+	<td>moment</td>
+	<td></td>
+	<td>The minimum moment/time on the scale</td>
+</tr>
+<tr>
+	<td>maxMoment</td>
+	<td>moment</td>
+	<td></td>
+	<td>The maximum moment/time on the scale</td>
+</tr>
+<tr>
+	<td>fromMoment</td>
+	<td>moment</td>
+	<td></td>
+	<td>The selected moment</td>
+</tr>
+
+<tr>
+	<td>callback</td>
+	<td><code>function(&nbsp;result&nbsp;)</code></td>
+	<td></td>
+	<td>The callback-function.<br> 
+<code>result</code><br>
+<code>&nbsp;&nbsp;.minMoment</code><br>
+<code>&nbsp;&nbsp;.min</code> minMoment as relative hours (ex. -24)<br>
+<code>&nbsp;&nbsp;.maxMoment</code><br>
+<code>&nbsp;&nbsp;.max</code> maxMoment as relative hours (ex. +48)<br>
+<code>&nbsp;&nbsp;.fromMoment</code><br>
+<code>&nbsp;&nbsp;.from</code> fromMoment as relative hours (ex. +2)
+	</td>
 </tr>
 </table>
 
+
+To step > 1 hour: See [jquery-time-slider] on how to use `options.step`, `options.step_offset`, and `options.step_offset_moment`
+ 
+
 ### Methods
 
-    .methods1( arg1, arg2,...): Do something
-    .methods2( arg1, arg2,...): Do something else
+All methods in [jquery-control-box] is avaiable.
+
+`.trimeSlider` contains the TimeSlider-object with as in [jquery-time-slider]
 
 
 

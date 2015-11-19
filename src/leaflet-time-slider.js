@@ -10,8 +10,6 @@
 ;(function ($, L, window, document, undefined) {
 	"use strict";
 
-	//var timeSlider = null;
-
 	//Extend base leaflet class
 	L.Control.TimeSlider = L.Control.Box.extend({
 
@@ -22,6 +20,7 @@
 			toggleDisplay	: true,
 			icon					: 'clock',
 			lang					: 'da',
+			displayAsLocal: true,
 			step					: 1,
 			step_offset		: 0,
 			hideText			: '',
@@ -93,17 +92,19 @@
 						max		: this.options.max,
 						from	: this.options.from,
 
-						step				: this.options.step,
-						step_offset	: this.options.step_offset,
+						step							: this.options.step,
+						step_offset				: this.options.step_offset,
+						step_offset_moment: this.options.step_offset_moment,
+
 						callback_on_dragging: false,	hide_bar_color: true,
 						format:	{date: 'DMY', time: '24', showRelative: false, timezone: 'local', showUTC: false	},
 						callback: this.options.callback
 					};
 
-			var timeSlider = $sliderInput.timeSlider( timeSliderOptions ).data('timeSlider');
+			this.timeSlider = $sliderInput.timeSlider( timeSliderOptions ).data('timeSlider');
 
 			var	$localCheckboxContainer = $('<div style="text-align:left; margin:0; width:100%;"></div>').appendTo($container),
-					$localCheckbox = $('<input id="tsLocal" type="checkbox" class="input-check" checked/>'),
+					$localCheckbox = $('<input id="tsLocal" type="checkbox" class="input-check" '+(this.options.displayAsLocal?'checked':'')+'/>'),
 					onChange = function(){ 
 						if (this.checked){
 							$('.only_local').show(); $('.only_utc').hide();
@@ -115,7 +116,7 @@
 						}
 					};
 
-			$localCheckbox.data('timeslider', timeSlider );
+			$localCheckbox.data('timeslider', this.timeSlider );
 			$localCheckbox.on('change', onChange );
 
 			//Create label for the checkbox

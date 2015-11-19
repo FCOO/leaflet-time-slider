@@ -60,13 +60,16 @@
 
 
 		var testTimeSliderControl = new L.Control.TimeSlider({
-			lang: lang,
-			position: 'topright',
+			lang						: lang,
+			position				: 'topright',
 			defaultMinimized: false,
-			minMoment: moment(), 
-			maxMoment: moment().add(2, 'd'), 
-			from: 9,
-			step: 1,
+			displayAsLocal	: false,
+
+			minMoment	: moment().add(-1, 'd'), 
+			maxMoment	: moment().add(2, 'd'), 
+			fromMoment: moment(),
+			step			: 1,
+
 			callback: function( result ){ 
 									console.log(result);
 									//callback( 'datetime', result.fromMoment.toISOString() );
