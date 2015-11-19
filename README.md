@@ -1,11 +1,11 @@
 # leaflet-time-slider
 >
 [jquery-time-slider]:https://github.com/FCOO/leaflet-time-slider
-[jquery-control-box]:https://github.com/FCOO/leaflet-control-box
+[leaflet-control-box]:https://github.com/FCOO/leaflet-control-box
 
 
 ## Description
-Creates a [jquery-time-slider] in a [jquery-control-box] 
+Creates a [jquery-time-slider] in a [leaflet-control-box] 
 
 ## Installation
 ### bower
@@ -109,7 +109,7 @@ To step > 1 hour: See [jquery-time-slider] on how to use `options.step`, `option
 
 ### Methods
 
-All methods in [jquery-control-box] is avaiable.
+All methods in [leaflet-control-box] is avaiable.
 
 `.trimeSlider` contains the TimeSlider-object with as in [jquery-time-slider]
 
