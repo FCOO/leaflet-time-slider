@@ -101,6 +101,13 @@ http://FCOO.github.io/leaflet-time-slider/demo/
 <code>&nbsp;&nbsp;.from</code> fromMoment as relative hours (ex. +2)
 	</td>
 </tr>
+<tr>
+	<td>callbackLocal</td>
+	<td><code>function(&nbsp;displayAsLocal&nbsp;)</code></td>
+	<td></td>
+	<td>The callback-function when the checkbox <code>[x] Use local time</code> is clicked. `displayAsLocal` is boolean
+	</td>
+</tr>
 </table>
 
 
