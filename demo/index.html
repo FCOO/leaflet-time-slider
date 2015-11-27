@@ -15,7 +15,7 @@
 	<meta name='owner' content='FCOO'>
 
   <link  href="bower_components.css" rel="stylesheet">	
-  <link rel="stylesheet" type="text/css" href="../bower_components/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="font-awesome.css">
 </head>
 
 <body>
@@ -70,12 +70,10 @@
 			fromMoment: moment(),
 			step			: 1,
 
-			callback: function( result ){ 
-									console.log(result);
-									//callback( 'datetime', result.fromMoment.toISOString() );
-								} 
+			callback			: function( result ){ console.log('callback', result.fromMoment.toISOString() ); }, 
+			callbackLocal	: function( displayAsLocal ){ console.log('callbackLocal', displayAsLocal); }
 		})
-			.addTo(map);
+		.addTo(map);
 
 	</script>
 </body>

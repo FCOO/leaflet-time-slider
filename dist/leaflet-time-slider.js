@@ -16,7 +16,7 @@
 		
     //Default options	
 		options: {
-			VERSION				: "1.0.1",
+			VERSION				: "1.1.0",
 			toggleDisplay	: true,
 			icon					: 'clock',
 			lang					: 'da',
@@ -106,17 +106,24 @@
 			var	$localCheckboxContainer = $('<div style="text-align:left; margin:0; width:100%;"></div>').appendTo($container),
 					$localCheckbox = $('<input id="tsLocal" type="checkbox" class="input-check" '+(this.options.displayAsLocal?'checked':'')+'/>'),
 					onChange = function(){ 
+						var controlBox = $(this).data('controlbox'),
+								timeSlider = controlBox.timeSlider;
+
 						if (this.checked){
 							$('.only_local').show(); $('.only_utc').hide();
-							$(this).data('timeslider').setFormat({ timezone: 'local' });
+							timeSlider.setFormat({ timezone: 'local' });
 						}	
 						else {
 							$('.only_local').hide(); $('.only_utc').show();
-							$(this).data('timeslider').setFormat({ timezone: 'utc' });
+							timeSlider.setFormat({ timezone: 'utc' });
 						}
+						if (controlBox.options.callbackLocal)
+							controlBox.options.callbackLocal( this.checked );						  
+						
 					};
 
-			$localCheckbox.data('timeslider', this.timeSlider );
+			$localCheckbox.data('controlbox', this );
+			//$localCheckbox.data('timeslider', this.timeSlider );
 			$localCheckbox.on('change', onChange );
 
 			//Create label for the checkbox
