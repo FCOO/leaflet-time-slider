@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "leaflet": "latest",
-    "jquery": "~2.1.4",
+    "jquery": "latest",
     "font-awesome": "fontawesome#~4.4.0",
     "jquery-time-slider": "fcoo/jquery-time-slider#latest",
     "leaflet-control-box": "fcoo/leaflet-control-box#latest"
