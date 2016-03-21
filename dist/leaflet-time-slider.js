@@ -16,7 +16,7 @@
 		
     //Default options	
 		options: {
-			VERSION				: "1.2.0",
+			VERSION				: "1.2.1",
 			toggleDisplay	: true,
 			icon					: 'clock',
 			lang					: 'da',
