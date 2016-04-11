@@ -1,6 +1,6 @@
 {
   "name": "leaflet-time-slider",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "homepage": "https://github.com/FCOO/leaflet-time-slider",
   "authors": [
     "Niels Holt nho@fcoo.dk"
@@ -19,13 +19,6 @@
     "jquery-time-slider": "fcoo/jquery-time-slider#latest",
     "leaflet-control-box": "fcoo/leaflet-control-box#latest",
     "fcoo-fontawesome": "fcoo/fcoo-fontawesome#^1.0.0"
-  },
-  "overrides": {
-    "jquery-autoclick-while-pressed": {
-      "main": [
-        "autoclick-while-pressed.js"
-      ]
-    }
   },
   "devDependencies": {
     "bourbon": "latest",

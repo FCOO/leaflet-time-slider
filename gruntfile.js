@@ -19,6 +19,12 @@ module.exports = function(grunt) {
 			return defaultContents;
 	}
 
+	function writeFile(fileName, isJSON, contents ){
+		if (isJSON)
+		  contents = JSON.stringify(contents);
+		grunt.file.write(fileName, contents);
+	}
+
 	//*******************************************************
 	// Variables to define the type of repository
 	var gruntfile_setup =	readFile('Gruntfile_setup.json', true, true, {
@@ -104,18 +110,7 @@ module.exports = function(grunt) {
 			};
 
 
-	//Converts bwr.overrides to options for bower-concat
-	var overrides = bwr.overrides || {};
-	for (var packageName in overrides)
-		if ( overrides.hasOwnProperty(packageName) ){
-			var p_overrides = overrides[packageName];
-			if (p_overrides.dependencies)
-			  bower_concat_options.dependencies[packageName] = p_overrides.dependencies;
-			if (p_overrides.main)
-			  bower_concat_options.mainFiles[packageName] = p_overrides.main;
-		}
-
-
+	//*******************************************************
 	//Capture the log.header function to remove the 'Running tast SOMETHING" message
 	grunt.log.header = function(txt){
 		//only for test: grunt.log.writeln('-'+txt+'-');
@@ -144,6 +139,7 @@ module.exports = function(grunt) {
 		return result;
 	}
 
+	//*******************************************************
 	function srcExclude_(mask){
 		mask = typeof mask === 'string' ? [mask] : mask;
 		mask.push('!**/_*/**', '!**/_*.*');
@@ -151,6 +147,7 @@ module.exports = function(grunt) {
 	}
 
 
+	//*******************************************************
 	//runCmd. useCmdOutput = true => the command output direct to std
 	function runCmd(cmd, useCmdOutput){
 		if (!useCmdOutput)
@@ -172,6 +169,92 @@ module.exports = function(grunt) {
 		}
 	}
 
+	//*******************************************************
+	var ORIGINALFileName = '_ORIGINAL_bower.json';
+	function copyBowerJsonToORIGINAL(){
+		if (grunt.file.exists(ORIGINALFileName))
+		  grunt.file.delete(ORIGINALFileName);
+		grunt.file.copy('bower.json', ORIGINALFileName );
+	}
+
+	function copyORIGINALToBowerJson(){
+		if (grunt.file.exists(ORIGINALFileName)){
+
+			grunt.file.copy(ORIGINALFileName, 'bower.json');
+		  grunt.file.delete(ORIGINALFileName);
+		}
+	}
+
+	//Check if _ORIGINAL_bower.json exists => probably an error in last run => copy it back;
+	copyORIGINALToBowerJson();
+
+
+	//*******************************************************
+	//Find overrides from all dependencies
+	//overridesList = [PACKAGENAME] of { overrides: {}, overridesInPackage: string }
+	//packageList = [PACKAGENAME] of boolean
+	function readOverrides( bwr, packageList, overridesList, first ){
+		var packageName;
+
+		//Find overrides
+		var overrides = bwr.overrides || {};
+		for (packageName in overrides)
+			if ( overrides.hasOwnProperty(packageName) ){
+				//Check if the package is already in overridesList
+				if (overridesList[packageName]){
+					if (!overridesList[packageName].firstLevel)
+						writelnYellow('WARNING - The package "' + packageName + '" has overrides in both "' + bwr.name + '" and "' + overridesList[packageName].overridesInPackage + '"' );
+				}
+				else
+					overridesList[packageName] = {
+						'overrides'					: overrides[packageName],
+						'overridesInPackage': bwr.name,
+						'firstLevel'				: first
+					}
+		}
+
+		//Find dependencies
+		var dependencies = bwr.dependencies || {};
+		for (packageName in dependencies)
+			if ( dependencies.hasOwnProperty(packageName) ){
+				//If the package already has been check => continue
+				if (packageList[ packageName ])
+				  continue;
+				packageList[ packageName ] = true;
+
+				//Read the dependences of the package
+				var nextBwr = readFile('bower_components/'+packageName +'/bower.json', true, false, {});
+				readOverrides( nextBwr, packageList, overridesList, false );
+		}
+
+	}
+	var packageList = [],
+			overridesList = [],
+			overrides = {},
+			packageName;
+	readOverrides( bwr, packageList, overridesList, true );
+	for (packageName in overridesList)
+		overrides[packageName] = overridesList[packageName].overrides;
+
+	//Save the new overrides in bwr
+	bwr.overrides = overrides;
+
+
+	//*******************************************************
+	//Converts bwr.overrides to options for bower-concat
+	for (var packageName in overrides)
+		if ( overrides.hasOwnProperty(packageName) ){
+			var p_overrides = overrides[packageName];
+			//Removed if (p_overrides.dependencies)
+			//Removed   bower_concat_options.dependencies[packageName] = p_overrides.dependencies;
+			if (p_overrides.main)
+			  bower_concat_options.mainFiles[packageName] = p_overrides.main;
+		}
+
+
+
+
+	//*******************************************************
 	var src_to_src_files				= { expand: true,	cwd: 'src',				dest: 'src'				},	//src/**/*.* => src/**/*.*
 			temp_to_temp_files			= { expand: true,	cwd: 'temp',			dest: 'temp'			},	//temp/**/*.* => temp/**/*.*
 			temp_to_temp_dist_files	=	{ expand: true,	cwd: 'temp',			dest: 'temp_dist'	},	//temp/**/*.* => temp_dist/**/*.*
@@ -844,7 +927,7 @@ module.exports = function(grunt) {
 	//CREATE THE "DEV" AND "PROD" TAST
 	//*********************************************************
 
-	//First create the task _create_dev_links
+	//Create the task _create_dev_links
 	grunt.registerTask('_create_dev_links', function(){
 		function findFiles(ext){
 			//Find all files in src with .ext but excl. .min.ext
@@ -888,6 +971,31 @@ module.exports = function(grunt) {
 			link_css += '  <link  href="../'+cssFile+'" rel="stylesheet">\n';
 		}
 	});
+
+
+	//********************************************************************
+	//Create task "_save_bower_overrides" - copy the original bower.json to _ORIGINAL_bower.jsom and write the new bower.json
+	grunt.registerTask('_save_bower_overrides', function(){
+		copyBowerJsonToORIGINAL();
+		writeFile('bower.json', true, bwr );
+	});
+	//Create task "_restore_bower_json" - restore the original bower.json
+	grunt.registerTask('_restore_bower_json', function(){
+		copyORIGINALToBowerJson()
+	});
+
+/*
+	function copyBowerJsonToORIGINAL(){
+		if (grunt.file.exists(ORIGINALFileName))
+		  grunt.file.delete(ORIGINALFileName);
+		grunt.file.copy('bower.json', ORIGINALFileName );
+	}
+
+	function copyORIGINALToBowerJson(){
+	function writeFile(fileName, isJSON, contents ){
+
+*/
+
 	//********************************************************************
 
 
@@ -907,8 +1015,6 @@ module.exports = function(grunt) {
 
 		tasks.push( isProdTasks ? '_set_process_env_PROD' : '_set_process_env_DEV');
 
-
-
 		//Run "before-commands" (if any)
 		tasks.push( isProdTasks ? '_before_prod' : '_before_dev');
 
@@ -919,6 +1025,12 @@ module.exports = function(grunt) {
 			'exec:bower_update_dev',	//Update devDependencies bower components
 			'check'
 		);
+
+
+		//If it is a application or dev => save bower.json to _ORIGINAL_bower.json and save bower.json with the new full overrides
+		if (isDevTasks || isApplication){
+		  tasks.push('_save_bower_overrides');
+		}
 
 		//BUILD JS (AND CSS) FROM SRC
 		if (isProdTasks){
@@ -1035,6 +1147,10 @@ module.exports = function(grunt) {
 		else
 			tasks.push( isApplication ? 'copy:src__dist_files_to_dev': 'copy:src__dist_files_to_demo' );		//Copies alle files in src\_dist_files to dev or demo, excl. '_*.*'
 
+
+		//If it is a application or dev => restore bower.json from _ORIGINAL_bower.json
+		if (isDevTasks || isApplication)
+		  tasks.push('_restore_bower_json');
 
 		if (cleanUp)
 		  tasks.push( 'clean:temp_dist');
