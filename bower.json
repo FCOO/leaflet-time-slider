@@ -1,6 +1,6 @@
 {
   "name": "leaflet-time-slider",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "homepage": "https://github.com/FCOO/leaflet-time-slider",
   "authors": [
     "Niels Holt nho@fcoo.dk"
@@ -16,7 +16,7 @@
   "dependencies": {
     "leaflet": "latest",
     "jquery": "latest",
-    "jquery-time-slider": "fcoo/jquery-time-slider#latest",
+    "jquery-time-slider": "fcoo/jquery-time-slider#~4.0.0",
     "leaflet-control-box": "fcoo/leaflet-control-box#^1.2.0"
   },
   "devDependencies": {

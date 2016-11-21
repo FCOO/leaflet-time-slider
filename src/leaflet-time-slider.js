@@ -16,10 +16,10 @@
         
     //Default options    
         options: {
-            VERSION      : "{VERSION}",
-            toggleDisplay: true,
-            icon         : 'clock',
-            lang         : 'da',
+            VERSION       : "{VERSION}",
+            toggleDisplay : true,
+            icon          : 'clock',
+            lang          : 'da',
             displayAsLocal: true,
             step          : 1,
             step_offset   : 0,
@@ -60,7 +60,7 @@
                 '<div style="text-align:center; border:1px solid black; padding:0px; margin:0 10px; width:90%; background-color:#DDDDDD;">' +
                     '<span id="currentMomentLocal" class="only_local"></span><span class="only_local">&nbsp;('+(langDa ? 'lokal' : 'local')+')</span>' +
                     '<span id="currentMomentUTC" class="only_utc"></span><span class="only_utc">&nbsp;('+(langDa ? 'UTC' : 'UTC')+')</span>' +
-            '</div>');
+                '</div>');
 
             //Append buttons
             var $buttonContainer = $('<div style="text-align:center; margin:0; width:100%;"></div>').appendTo($container),
@@ -68,10 +68,10 @@
 
             $buttonContainer.append([
                 '<button id="tsFirst" class="'+buttonClass+'"><i class="fa fa-fast-backward"></i></button>',
-                '<button id="tsPrev"    class="'+buttonClass+'"><i class="fa fa-step-backward"></i></button>',
-                '<button id="tsNow"        class="'+buttonClass+'"><span class="fa">' + (langDa ? 'Nu' : 'Now') + '</span></button>',
-                '<button id="tsNext"    class="'+buttonClass+'"><i class="fa fa-step-forward"></i></button>',
-                '<button id="tsLast"    class="'+buttonClass+'"><i class="fa fa-fast-forward"></i></button>'
+                '<button id="tsPrev"  class="'+buttonClass+'"><i class="fa fa-step-backward"></i></button>',
+                '<button id="tsNow"   class="'+buttonClass+'"><span class="fa">' + (langDa ? 'Nu' : 'Now') + '</span></button>',
+                '<button id="tsNext"  class="'+buttonClass+'"><i class="fa fa-step-forward"></i></button>',
+                '<button id="tsLast"  class="'+buttonClass+'"><i class="fa fa-fast-forward"></i></button>'
             ]);
 
             //Create the time-slider
@@ -100,7 +100,8 @@
                     callback_on_dragging: false,    
                     hide_bar_color      : true,
 
-                    format  : {date: 'DMY', time: '24', showRelative: false, timezone: 'local', showUTC: false    },
+                    format: {date: 'DMY', time: '24', showRelative: false, timezone: 'local', showUTC: false },
+
                     callback: this.options.callback
                 };
 
@@ -114,15 +115,16 @@
 
                     if (this.checked){
                         $('.only_local').show(); $('.only_utc').hide();
-                        timeSlider.setFormat({ timezone: 'local' });
+                        moment.sfSetFormat({ timezone: 'local' });
+                        timeSlider.setFormat();
                     }    
                     else {
                         $('.only_local').hide(); $('.only_utc').show();
-                        timeSlider.setFormat({ timezone: 'utc' });
+                        moment.sfSetFormat({ timezone: 'utc' });
+                        timeSlider.setFormat();
                     }
                     if (controlBox.options.callbackLocal)
                         controlBox.options.callbackLocal( this.checked );                          
-                        
                 };
 
             $localCheckbox.data('controlbox', this );
