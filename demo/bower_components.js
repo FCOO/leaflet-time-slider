@@ -12108,7 +12108,7 @@ return jQuery;
 
 ;
 //! moment.js
-//! version : 2.16.0
+//! version : 2.17.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -12151,7 +12151,7 @@ function isObjectEmpty(obj) {
 }
 
 function isNumber(input) {
-    return typeof value === 'number' || Object.prototype.toString.call(input) === '[object Number]';
+    return typeof input === 'number' || Object.prototype.toString.call(input) === '[object Number]';
 }
 
 function isDate(input) {
@@ -12343,6 +12343,9 @@ var updateInProgress = false;
 function Moment(config) {
     copyConfig(this, config);
     this._d = new Date(config._d != null ? config._d.getTime() : NaN);
+    if (!this.isValid()) {
+        this._d = new Date(NaN);
+    }
     // Prevent infinite loop in case updateOffset creates new moment
     // objects.
     if (updateInProgress === false) {
@@ -16370,7 +16373,7 @@ addParseToken('x', function (input, array, config) {
 // Side effect imports
 
 
-hooks.version = '2.16.0';
+hooks.version = '2.17.1';
 
 setHookCallback(createLocal);
 
@@ -16891,9 +16894,65 @@ return hooks;
 })(this);
 
 ;
+(function() {
+
+  var moment = (typeof require !== "undefined" && require !== null) && !require.amd ? require("moment") : this.moment;
+
+  moment.fn.round = function(precision, key, direction) {
+    if(typeof direction === 'undefined') {
+      direction = 'round';
+    }
+
+    var keys = ['Hours', 'Minutes', 'Seconds', 'Milliseconds'];
+    var maxValues = [24, 60, 60, 1000];
+    
+    // Capitalize first letter
+    key = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+
+    // make sure key is plural
+    if (key.indexOf('s', key.length - 1) === -1) {
+      key += 's';
+    }
+    var value = 0;
+    var rounded = false;
+    var subRatio = 1;
+    var maxValue ;
+    for (var i in keys) {
+      var k = keys[i];
+      if (k === key) {
+        value = this._d['get' + key]();
+        maxValue = maxValues[i];
+        rounded = true;
+      } else if(rounded) {
+        subRatio *= maxValues[i];
+        value += this._d['get' + k]() / subRatio;
+        this._d['set' + k](0);
+      }
+    };
+
+    value = Math[direction](value / precision) * precision;
+    value = Math.min(value, maxValue);
+    this._d['set' + key](value);
+
+    return this;
+  }
+
+  moment.fn.ceil = function(precision, key) {
+    return this.round(precision, key, 'ceil');
+  }
+
+  moment.fn.floor = function(precision, key) {
+    return this.round(precision, key, 'floor');
+  }
+
+  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
+    module.exports = moment;
+  }
+}).call(this);
+;
 //! moment-timezone.js
-//! version : 0.5.9
-//! author : Tim Wood
+//! version : 0.5.11
+//! Copyright (c) JS Foundation and other contributors
 //! license : MIT
 //! github.com/moment/moment-timezone
 
@@ -16912,12 +16971,12 @@ return hooks;
 	"use strict";
 
 	// Do not load moment-timezone a second time.
-	if (moment.tz !== undefined) {
-		logError('Moment Timezone ' + moment.tz.version + ' was already loaded ' + (moment.tz.dataVersion ? 'with data from ' : 'without any data') + moment.tz.dataVersion);
-		return moment;
-	}
+	// if (moment.tz !== undefined) {
+	// 	logError('Moment Timezone ' + moment.tz.version + ' was already loaded ' + (moment.tz.dataVersion ? 'with data from ' : 'without any data') + moment.tz.dataVersion);
+	// 	return moment;
+	// }
 
-	var VERSION = "0.5.9",
+	var VERSION = "0.5.11",
 		zones = {},
 		links = {},
 		names = {},
@@ -17489,7 +17548,7 @@ return hooks;
 	}
 
 	loadData({
-		"version": "2016i",
+		"version": "2016j",
 		"zones": [
 			"Africa/Abidjan|GMT|0|0||48e5",
 			"Africa/Khartoum|EAT|-30|0||51e5",
@@ -17660,6 +17719,7 @@ return hooks;
 			"Europe/Minsk|EET EEST +03|-20 -30 -30|0102|1BWo0 1qM0 WM0|19e5",
 			"Europe/Moscow|MSK MSD MSK|-30 -40 -40|01020|1BWn0 1qM0 WM0 8Hz0|16e6",
 			"Europe/Samara|+04 +03|-40 -30|010|1Dpb0 WM0|12e5",
+			"Europe/Saratov|+03 +04|-30 -40|010101|1BWn0 1qM0 WM0 8Hz0 5810",
 			"Europe/Simferopol|EET EEST MSK MSK|-20 -30 -40 -30|01010101023|1BWp0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11z0 1nW0|33e4",
 			"Pacific/Honolulu|HST|a0|0||37e4",
 			"Indian/Chagos|IOT|-60|0||30e2",
@@ -17966,6 +18026,7 @@ return hooks;
 			"Asia/Tashkent|Asia/Aqtobe",
 			"Asia/Tashkent|Asia/Ashgabat",
 			"Asia/Tashkent|Asia/Ashkhabad",
+			"Asia/Tashkent|Asia/Atyrau",
 			"Asia/Tashkent|Asia/Dushanbe",
 			"Asia/Tashkent|Asia/Oral",
 			"Asia/Tashkent|Asia/Samarkand",
@@ -18092,17 +18153,17 @@ return hooks;
 
 ;
 /****************************************************************************
-	moment-simple-format.js, 
+    moment-simple-format.js, 
 
-	(c) 2016, FCOO
+    (c) 2016, FCOO
 
-	https://github.com/FCOO/moment-format
-	https://github.com/FCOO
+    https://github.com/FCOO/moment-format
+    https://github.com/FCOO
 
 ****************************************************************************/
 
 (function (moment, $ /*, window, document, undefined*/) {
-	"use strict";
+    "use strict";
  
     /***********************************************************
     dateFormatList = array[0..dateFormats-1] of {DMY: [String], MDY: [String], YMD: [String]}
@@ -18196,12 +18257,18 @@ return hooks;
 
     //Global const, var, and methods
 
-    // moment.sfGetOptions
+    /*******************************************************************
+    moment.sfGetOptions
+    Return the current options optional merged with `options`
+    ********************************************************************/
     moment.sfGetOptions = function( options ){ 
         return $.extend( true, {}, namespace.options, options );
     };
 
-    // moment.sfGetDateFormat
+    /*******************************************************************
+    moment.sfGetDateFormat
+    Return the current moment date format based on current options optional merged with `options`
+    ********************************************************************/
     moment.sfGetDateFormat = function( options ){ 
         options = $.extend( true, {}, namespace.options, options );
         var i, code = options2code( options );
@@ -18211,19 +18278,28 @@ return hooks;
         return '';
     };
 
-    // moment.sfGetTimeFormat
+    /*******************************************************************
+    moment.sfGetTimeFormat
+    Return the current moment time format based on current options optional merged with `options`
+    ********************************************************************/
     moment.sfGetTimeFormat = function( options ){ 
         options = $.extend( true, {}, namespace.options, options );
         return parseInt(options.time) == 24 ? 'HH:mm' : 'hh:mma';
     };
 
-    // moment.sfGetHourFormat
+    /*******************************************************************
+    moment.sfGetHourFormat
+    Return the current moment hour format based on current options optional merged with `options`
+    ********************************************************************/
     moment.sfGetHourFormat = function( options ){ 
         options = $.extend( true, {}, namespace.options, options );
         return parseInt(options.time) == 24 ? 'HH' : 'hha';
     };
 
-    // moment.sfGetTimezone
+    /*******************************************************************
+    moment.sfGetTimezone
+    Return the current timezone record moment or the timezone record withid = `id`
+    ********************************************************************/
     moment.sfGetTimezone = function( id ){     
         id = id || namespace.options.timezone;
         for (var i=0; i<namespace.timezoneList.length; i++ )
@@ -18232,7 +18308,9 @@ return hooks;
         return null;
     };
 
-    // moment.sfGetRelativeFormat
+    /*******************************************************************
+    moment.sfGetRelativeFormat
+    ********************************************************************/
     moment.sfGetRelativeFormat = function( options ){ 
         options = $.extend( true, {}, namespace.options, options );
         var opt_relativeFormat = options.relativeFormat,
@@ -18243,7 +18321,10 @@ return hooks;
                (opt_relativeFormat.minutes ? 'mm[' + opt_text.minAbbr  + ']' : '');
     };
     
-    // moment.sfSetFormat
+    /*******************************************************************
+    moment.sfSetFormat
+    Set the `options`   
+    ********************************************************************/
     moment.sfSetFormat = function( options ){ 
         $.extend( true, namespace.options, options );
         namespace.code = options2code( namespace.options );
@@ -18253,38 +18334,73 @@ return hooks;
         namespace.hourFormat     = this.sfGetHourFormat( namespace.options );
         namespace.timezone       = this.sfGetTimezone( namespace.options.timezone );
         namespace.relativeFormat = this.sfGetRelativeFormat( namespace.options );
-    
+
+        if (namespace.onSetFormatList)
+          for (var i=0; i<namespace.onSetFormatList.length; i++ )
+            namespace.onSetFormatList[i]( namespace.options );
+          
     };
     
-    // moment.sfAddTimezone
+    /*******************************************************************
+    moment.sfOnSetFormat
+    Add `func = function( options )` to be called after `moment.sfSetFormat( options )` is called
+    ********************************************************************/
+    moment.sfOnSetFormat = function( func ){
+        namespace.onSetFormatList = namespace.onSetFormatList || [];
+        namespace.onSetFormatList.push( func );
+    };
+
+    /*******************************************************************
+    moment.sfAddTimezone
+    Adds a time-zone to the list of available time-zones
+    options = {
+        id: [String], //id of the timezone from moment.tz
+        name: [String] //optional name for the timezone
+    }
+    All the timezones are in `moment.simpleFormat.timezoneList //[]`
+    ********************************************************************/
+        /*******************************************************************
+        timezoneUpdate( name, offsetMoment )
+        Update fullname with optional new value of name and/or offsetMoment
+        ********************************************************************/
+        function timezoneUpdate( name, offsetMoment ){
+            this.name = name || this.name || this.id;
+            this.offsetMoment = offsetMoment || this.offsetMoment || moment();
+            var offset = 0; 
+            switch (this.id){
+                case 'local': offset = (new Date()).getTimezoneOffset();    break;
+                case 'utc'  : offset = null; break;
+                default     : offset = window.moment.tz.zone(this.id).offset( this.offsetMoment ); break;
+            }
+            this.offset = offset;                      
+            this.fullName = this.name;
+            if (offset !== null){
+                this.fullName += ' (UTC' + (offset<=0?'+':'-');
+                offset = Math.abs(offset);        
+                var h = Math.floor(offset / 60),
+                    m = offset % 60;
+                this.fullName += (h<10?'0':'') + h + ':' + (m<10?'0':'') + m + ')';
+            }
+        }
+    
     moment.sfAddTimezone = function( options, offsetMoment ){ 
         var THIS = this;
         if ($.isArray( options ))
             $.each( options, function( index, opt ){ THIS.sfAddTimezone( opt, offsetMoment ); } );
         else { 
-            options.name = options.name || options.id;
-            offsetMoment = offsetMoment || moment();
-            var offset = 0; 
-            switch (options.id){
-                case 'local': offset = (new Date()).getTimezoneOffset();    break;
-                case 'utc'  : offset = null; break;
-                default     : offset = window.moment.tz.zone(options.id).offset( offsetMoment ); break;
-            }
-            options.offset = offset;                      
-            options.fullName = options.name;
-            if (offset !== null){
-                options.fullName += ' (UTC' + (offset<=0?'+':'-');
-                offset = Math.abs(offset);        
-                var h = Math.floor(offset / 60),
-                    m = offset % 60;
-                options.fullName += (h<10?'0':'') + h + ':' + (m<10?'0':'') + m + ')';
-
-            }
+            options.update = timezoneUpdate;
+            options.update( null, offsetMoment );
             namespace.timezoneList.push(options);
         }
     };
 
-    // moment.sfDateFormatList
+
+
+    /*******************************************************************
+    moment.sfDateFormatList
+    Return a array of available formats. 
+    includeCodeFunc = function( code ): optional - return true or false to include or exclude a format with code from the list
+    ********************************************************************/
     moment.sfDateFormatList = function( includeCodeFunc ){
         includeCodeFunc = includeCodeFunc || function(/* code */){ return true; };
         var i, dateFormat, result = [];
@@ -18297,15 +18413,25 @@ return hooks;
         return result;
     };
 
-    // moment.sfInit
+    /*******************************************************************
+    moment.sfInit
+    Initialize the options and the list of time-zones
+    Only need to be call if `options.text` is changed
+    ********************************************************************/
     moment.sfInit = function( options ){ 
         this.sfSetFormat( options );
 
-        this.timezoneList = [];
-        this.sfAddTimezone([
-            { id:'local', name: namespace.options.text.local },
-            { id:'utc',   name: namespace.options.text.utc   }
-        ]);
+        if (namespace.timezoneList.length){
+            //Update the name of the default timezones
+            namespace.timezoneList[0].update( namespace.options.text.local );
+            namespace.timezoneList[1].update( namespace.options.text.utc );
+        }
+        else
+            //Add default timezones
+            this.sfAddTimezone([
+                { id:'local', name: namespace.options.text.local },
+                { id:'utc',   name: namespace.options.text.utc   }
+            ]);
     };
 
     moment.sfInit();
@@ -18313,7 +18439,10 @@ return hooks;
 
     //Moment.prototype.method == moment.fn.method
 
-    // moment.fn.tzMoment
+    /*******************************************************************
+    moment.fn.tzMoment
+    Return the moment adjusted to `timezone` or the time-zone set with `moment.sfSetFormat`
+    ********************************************************************/
     moment.fn.tzMoment = function( timezone ) { 
         timezone = timezone || namespace.options.timezone;
         if (timezone == 'local') return this.local();
@@ -18339,21 +18468,30 @@ return hooks;
 
 
 
-    // moment.fn.dateFormat
+    /*******************************************************************
+    moment.fn.dateFormat
+    Return a formatted date string. The format is given by `options` or the options set with `moment.sfSetFormat`
+    ********************************************************************/
     moment.fn.dateFormat = function( options ) { 
         return this._sfAnyFormat( options, function(){
             return this.format( namespace.dateFormat );
         });
     };
 
-    // moment.fn.timeFormat
+    /*******************************************************************
+    moment.fn.timeFormat
+    Return a formatted time string. The format is given by `options` or the options set with `moment.sfSetFormat`
+    ********************************************************************/
     moment.fn.timeFormat = function( options ) { 
         return this._sfAnyFormat( options, function(){
             return this.format( namespace.timeFormat );
         });
     };
 
-    // moment.fn.hourFormat
+    /*******************************************************************
+    moment.fn.hourFormat
+    Return a formatted hour string. The format is given by `options` or the options set with `moment.sfSetFormat`
+    ********************************************************************/
     moment.fn.hourFormat = function( options ) { 
         return this._sfAnyFormat( options, function(){
             return this.format( namespace.hourFormat );
@@ -18361,19 +18499,31 @@ return hooks;
     };
 
 
-
-    // moment.fn.dateTimeFormat
+    /*******************************************************************
+    moment.fn.dateTimeFormat
+    Return a formatted date and time string. The format is given by `options` or the options set with `moment.sfSetFormat`
+    ********************************************************************/
     moment.fn.dateTimeFormat = function( options ) { 
         return this.dateFormat( options ) + ' ' + this.timeFormat( options );
     };
 
-    // moment.fn.relativeFormat
+    /*******************************************************************
+    moment.fn.relativeFormat
+    Return a relative time string. The format is given by `options` or the options set with `moment.sfSetFormat`
+    ********************************************************************/
     moment.fn.relativeFormat = function( options ) { 
         return this._sfAnyFormat( options, function(){
-            var minDiff = this.diff( moment() , '', true),
+            var mom = moment( this ).round(1, 'minutes'),
+                now = moment().round(1, 'minutes'),
+                minDiff = mom.diff( now, 'minutes'), //this.diff( moment() , '', true),
                 sign = minDiff < 0 ? '-' : '+';
+
             minDiff = Math.abs( minDiff ) ;
-            return (namespace.options.relativeFormat.now ? namespace.options.text.now : '') + sign + moment.duration(minDiff).format( namespace.relativeFormat );
+            if (namespace.options.relativeFormat.now && (minDiff == 0))
+                //Special case for 'now+0h' => 'now'
+                return namespace.options.text.now;
+
+            return (namespace.options.relativeFormat.now ? namespace.options.text.now : '') + sign + moment.duration(minDiff, 'minutes').format( namespace.relativeFormat );
         });
     };
 
@@ -18761,12 +18911,12 @@ options:
 
 ;
 /*
- Leaflet 1.0.2, a JS library for interactive maps. http://leafletjs.com
+ Leaflet 1.0.3, a JS library for interactive maps. http://leafletjs.com
  (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
 */
 (function (window, document, undefined) {
 var L = {
-	version: "1.0.2"
+	version: "1.0.3"
 };
 
 function expose() {
@@ -19278,7 +19428,6 @@ L.Evented = L.Class.extend({
 		}
 
 		listeners.push(newListener);
-		typeListeners.count++;
 	},
 
 	_off: function (type, fn, context) {
@@ -19586,6 +19735,9 @@ L.Mixin = {Events: proto};
 
 		// @property touch: Boolean
 		// `true` for all browsers supporting [touch events](https://developer.mozilla.org/docs/Web/API/Touch_events).
+		// This does not necessarily mean that the browser is running in a computer with
+		// a touchscreen, it only means that the browser is capable of understanding
+		// touch events.
 		touch: !!touch,
 
 		// @property msPointer: Boolean
@@ -20424,7 +20576,7 @@ L.LatLng.prototype = {
 	},
 
 	// @method toBounds(sizeInMeters: Number): LatLngBounds
-	// Returns a new `LatLngBounds` object in which each boundary is `sizeInMeters` meters apart from the `LatLng`.
+	// Returns a new `LatLngBounds` object in which each boundary is `sizeInMeters/2` meters apart from the `LatLng`.
 	toBounds: function (sizeInMeters) {
 		var latAccuracy = 180 * sizeInMeters / 40075017,
 		    lngAccuracy = latAccuracy / Math.cos((Math.PI / 180) * this.lat);
@@ -20631,7 +20783,7 @@ L.LatLngBounds.prototype = {
 	// @method contains (latlng: LatLng): Boolean
 	// Returns `true` if the rectangle contains the given point.
 	contains: function (obj) { // (LatLngBounds) or (LatLng) -> Boolean
-		if (typeof obj[0] === 'number' || obj instanceof L.LatLng) {
+		if (typeof obj[0] === 'number' || obj instanceof L.LatLng || 'lat' in obj) {
 			obj = L.latLng(obj);
 		} else {
 			obj = L.latLngBounds(obj);
@@ -20894,12 +21046,35 @@ L.CRS = {
 	// @method wrapLatLng(latlng: LatLng): LatLng
 	// Returns a `LatLng` where lat and lng has been wrapped according to the
 	// CRS's `wrapLat` and `wrapLng` properties, if they are outside the CRS's bounds.
+	// Only accepts actual `L.LatLng` instances, not arrays.
 	wrapLatLng: function (latlng) {
 		var lng = this.wrapLng ? L.Util.wrapNum(latlng.lng, this.wrapLng, true) : latlng.lng,
 		    lat = this.wrapLat ? L.Util.wrapNum(latlng.lat, this.wrapLat, true) : latlng.lat,
 		    alt = latlng.alt;
 
 		return L.latLng(lat, lng, alt);
+	},
+
+	// @method wrapLatLngBounds(bounds: LatLngBounds): LatLngBounds
+	// Returns a `LatLngBounds` with the same size as the given one, ensuring
+	// that its center is within the CRS's bounds.
+	// Only accepts actual `L.LatLngBounds` instances, not arrays.
+	wrapLatLngBounds: function (bounds) {
+		var center = bounds.getCenter(),
+		    newCenter = this.wrapLatLng(center),
+		    latShift = center.lat - newCenter.lat,
+		    lngShift = center.lng - newCenter.lng;
+
+		if (latShift === 0 && lngShift === 0) {
+			return bounds;
+		}
+
+		var sw = bounds.getSouthWest(),
+		    ne = bounds.getNorthEast(),
+		    newSw = L.latLng({lat: sw.lat - latShift, lng: sw.lng - lngShift}),
+		    newNe = L.latLng({lat: ne.lat - latShift, lng: ne.lng - lngShift});
+
+		return new L.LatLngBounds(newSw, newNe);
 	}
 };
 
@@ -21067,7 +21242,7 @@ L.Map = L.Evented.extend({
 
 		// @option maxBounds: LatLngBounds = null
 		// When this option is set, the map restricts the view to the given
-		// geographical bounds, bouncing the user back when he tries to pan
+		// geographical bounds, bouncing the user back if the user tries to pan
 		// outside the view. To set the restriction dynamically, use
 		// [`setMaxBounds`](#map-setmaxbounds) method.
 		maxBounds: undefined,
@@ -21274,7 +21449,7 @@ L.Map = L.Evented.extend({
 		};
 	},
 
-	// @method fitBounds(bounds: LatLngBounds, options: fitBounds options): this
+	// @method fitBounds(bounds: LatLngBounds, options?: fitBounds options): this
 	// Sets a map view that contains the given geographical bounds with the
 	// maximum zoom level possible.
 	fitBounds: function (bounds, options) {
@@ -21803,7 +21978,7 @@ L.Map = L.Evented.extend({
 		    nw = bounds.getNorthWest(),
 		    se = bounds.getSouthEast(),
 		    size = this.getSize().subtract(padding),
-		    boundsSize = this.project(se, zoom).subtract(this.project(nw, zoom)),
+		    boundsSize = L.bounds(this.project(se, zoom), this.project(nw, zoom)).getSize(),
 		    snap = L.Browser.any3d ? this.options.zoomSnap : 1;
 
 		var scale = Math.min(size.x / boundsSize.x, size.y / boundsSize.y);
@@ -21822,8 +21997,8 @@ L.Map = L.Evented.extend({
 	getSize: function () {
 		if (!this._size || this._sizeChanged) {
 			this._size = new L.Point(
-				this._container.clientWidth,
-				this._container.clientHeight);
+				this._container.clientWidth || 0,
+				this._container.clientHeight || 0);
 
 			this._sizeChanged = false;
 		}
@@ -21944,6 +22119,16 @@ L.Map = L.Evented.extend({
 		return this.options.crs.wrapLatLng(L.latLng(latlng));
 	},
 
+	// @method wrapLatLngBounds(bounds: LatLngBounds): LatLngBounds
+	// Returns a `LatLngBounds` with the same size as the given one, ensuring that
+	// its center is within the CRS's bounds.
+	// By default this means the center longitude is wrapped around the dateline so its
+	// value is between -180 and +180 degrees, and the majority of the bounds
+	// overlaps the CRS's bounds.
+	wrapLatLngBounds: function (latlng) {
+		return this.options.crs.wrapLatLngBounds(L.latLngBounds(latlng));
+	},
+
 	// @method distance(latlng1: LatLng, latlng2: LatLng): Number
 	// Returns the distance between two geographical coordinates according to
 	// the map's CRS. By default this measures distance in meters.
@@ -21965,7 +22150,7 @@ L.Map = L.Evented.extend({
 		return L.point(point).add(this._getMapPanePos());
 	},
 
-	// @method containerPointToLatLng(point: Point): Point
+	// @method containerPointToLatLng(point: Point): LatLng
 	// Given a pixel coordinate relative to the map container, returns
 	// the corresponding geographical coordinate (for the current zoom level).
 	containerPointToLatLng: function (point) {
@@ -22651,7 +22836,7 @@ L.Layer = L.Evented.extend({
 
 		// @option attribution: String = null
 		// String to be shown in the attribution control, describes the layer data, e.g. "© Mapbox".
-		attribution: null,
+		attribution: null
 	},
 
 	/* @section
@@ -22721,8 +22906,8 @@ L.Layer = L.Evented.extend({
 
 		this.onAdd(map);
 
-		if (this.getAttribution && this._map.attributionControl) {
-			this._map.attributionControl.addAttribution(this.getAttribution());
+		if (this.getAttribution && map.attributionControl) {
+			map.attributionControl.addAttribution(this.getAttribution());
 		}
 
 		this.fire('add');
@@ -22967,7 +23152,10 @@ L.DomEvent = {
 		if (L.Browser.pointer && type.indexOf('touch') === 0) {
 			this.addPointerListener(obj, type, handler, id);
 
-		} else if (L.Browser.touch && (type === 'dblclick') && this.addDoubleTapListener) {
+		} else if (L.Browser.touch && (type === 'dblclick') && this.addDoubleTapListener &&
+		           !(L.Browser.pointer && L.Browser.chrome)) {
+			// Chrome >55 does not need the synthetic dblclicks from addDoubleTapListener
+			// See #5180
 			this.addDoubleTapListener(obj, handler, id);
 
 		} else if ('addEventListener' in obj) {
@@ -23474,7 +23662,9 @@ L.GridLayer = L.Layer.extend({
 		// @option noWrap: Boolean = false
 		// Whether the layer is wrapped around the antimeridian. If `true`, the
 		// GridLayer will only be displayed once at low zoom levels. Has no
-		// effect when the [map CRS](#map-crs) doesn't wrap around.
+		// effect when the [map CRS](#map-crs) doesn't wrap around. Can be used
+		// in combination with [`bounds`](#gridlayer-bounds) to prevent requesting
+		// tiles outside the CRS limits.
 		noWrap: false,
 
 		// @option pane: String = 'tilePane'
@@ -24045,14 +24235,14 @@ L.GridLayer = L.Layer.extend({
 		    sePoint = nwPoint.add(tileSize),
 
 		    nw = map.unproject(nwPoint, coords.z),
-		    se = map.unproject(sePoint, coords.z);
+		    se = map.unproject(sePoint, coords.z),
+		    bounds = new L.LatLngBounds(nw, se);
 
 		if (!this.options.noWrap) {
-			nw = map.wrapLatLng(nw);
-			se = map.wrapLatLng(se);
+			map.wrapLatLngBounds(bounds);
 		}
 
-		return new L.LatLngBounds(nw, se);
+		return bounds;
 	},
 
 	// converts tile coordinates to key for the tile cache
@@ -24238,7 +24428,7 @@ L.gridLayer = function (options) {
  * @example
  *
  * ```js
- * L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map);
+ * L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar'}).addTo(map);
  * ```
  *
  * @section URL template
@@ -24424,7 +24614,7 @@ L.TileLayer = L.GridLayer.extend({
 
 	_tileOnError: function (done, tile, e) {
 		var errorUrl = this.options.errorTileUrl;
-		if (errorUrl) {
+		if (errorUrl && tile.src !== errorUrl) {
 			tile.src = errorUrl;
 		}
 		done(e, tile);
@@ -24762,6 +24952,8 @@ L.ImageOverlay = L.Layer.extend({
 		return this;
 	},
 
+	// @method setBounds(bounds: LatLngBounds): this
+	// Update the bounds that this ImageOverlay covers
 	setBounds: function (bounds) {
 		this._bounds = bounds;
 
@@ -24784,10 +24976,14 @@ L.ImageOverlay = L.Layer.extend({
 		return events;
 	},
 
+	// @method getBounds(): LatLngBounds
+	// Get the bounds that this ImageOverlay covers
 	getBounds: function () {
 		return this._bounds;
 	},
 
+	// @method getElement(): HTMLElement
+	// Get the img element that represents the ImageOverlay on the map
 	getElement: function () {
 		return this._image;
 	},
@@ -25255,6 +25451,7 @@ L.Marker = L.Layer.extend({
 
 		if (newShadow) {
 			L.DomUtil.addClass(newShadow, classToAdd);
+			newShadow.alt = '';
 		}
 		this._shadow = newShadow;
 
@@ -26110,7 +26307,7 @@ L.Layer.include({
 	// @method isPopupOpen(): boolean
 	// Returns `true` if the popup bound to this layer is currently open.
 	isPopupOpen: function () {
-		return this._popup.isOpen();
+		return (this._popup ? this._popup.isOpen() : false);
 	},
 
 	// @method setPopupContent(content: String|HTMLElement|Popup): this
@@ -27384,9 +27581,9 @@ L.LineUtil = {
  * ```js
  * // create a red polyline from an array of LatLng points
  * var latlngs = [
- * 	[-122.68, 45.51],
- * 	[-122.43, 37.77],
- * 	[-118.2, 34.04]
+ * 	[45.51, -122.68],
+ * 	[37.77, -122.43],
+ * 	[34.04, -118.2]
  * ];
  *
  * var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
@@ -27400,12 +27597,12 @@ L.LineUtil = {
  * ```js
  * // create a red polyline from an array of arrays of LatLng points
  * var latlngs = [
- * 	[[-122.68, 45.51],
- * 	 [-122.43, 37.77],
- * 	 [-118.2, 34.04]],
- * 	[[-73.91, 40.78],
- * 	 [-87.62, 41.83],
- * 	 [-96.72, 32.76]]
+ * 	[[45.51, -122.68],
+ * 	 [37.77, -122.43],
+ * 	 [34.04, -118.2]],
+ * 	[[40.78, -73.91],
+ * 	 [41.83, -87.62],
+ * 	 [32.76, -96.72]]
  * ];
  * ```
  */
@@ -27745,7 +27942,7 @@ L.PolyUtil.clipPolygon = function (points, bounds, round) {
  *
  * ```js
  * // create a red polygon from an array of LatLng points
- * var latlngs = [[-111.03, 41],[-111.04, 45],[-104.05, 45],[-104.05, 41]];
+ * var latlngs = [[37, -109.05],[41, -109.03],[41, -102.05],[37, -102.04]];
  *
  * var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
  *
@@ -27757,8 +27954,8 @@ L.PolyUtil.clipPolygon = function (points, bounds, round) {
  *
  * ```js
  * var latlngs = [
- *   [[-111.03, 41],[-111.04, 45],[-104.05, 45],[-104.05, 41]], // outer ring
- *   [[-108.58,37.29],[-108.58,40.71],[-102.50,40.71],[-102.50,37.29]] // hole
+ *   [[37, -109.05],[41, -109.03],[41, -102.05],[37, -102.04]], // outer ring
+ *   [[37.29, -108.58],[40.71, -108.58],[40.71, -102.50],[37.29, -102.50]] // hole
  * ];
  * ```
  *
@@ -27767,11 +27964,11 @@ L.PolyUtil.clipPolygon = function (points, bounds, round) {
  * ```js
  * var latlngs = [
  *   [ // first polygon
- *     [[-111.03, 41],[-111.04, 45],[-104.05, 45],[-104.05, 41]], // outer ring
- *     [[-108.58,37.29],[-108.58,40.71],[-102.50,40.71],[-102.50,37.29]] // hole
+ *     [[37, -109.05],[41, -109.03],[41, -102.05],[37, -102.04]], // outer ring
+ *     [[37.29, -108.58],[40.71, -108.58],[40.71, -102.50],[37.29, -102.50]] // hole
  *   ],
  *   [ // second polygon
- *     [[-109.05, 37],[-109.03, 41],[-102.05, 41],[-102.04, 37],[-109.05, 38]]
+ *     [[41, -111.03],[45, -111.04],[45, -104.05],[41, -104.05]]
  *   ]
  * ];
  * ```
@@ -28441,6 +28638,7 @@ L.SVG.include(!L.Browser.vml ? {} : {
 		container.appendChild(layer._path);
 
 		this._updateStyle(layer);
+		this._layers[L.stamp(layer)] = layer;
 	},
 
 	_addPath: function (layer) {
@@ -28456,6 +28654,7 @@ L.SVG.include(!L.Browser.vml ? {} : {
 		var container = layer._container;
 		L.DomUtil.remove(container);
 		layer.removeInteractiveTarget(container);
+		delete this._layers[L.stamp(layer)];
 	},
 
 	_updateStyle: function (layer) {
@@ -28577,6 +28776,16 @@ if (L.Browser.vml) {
  */
 
 L.Canvas = L.Renderer.extend({
+	getEvents: function () {
+		var events = L.Renderer.prototype.getEvents.call(this);
+		events.viewprereset = this._onViewPreReset;
+		return events;
+	},
+
+	_onViewPreReset: function () {
+		// Set a flag so that a viewprereset+moveend+viewreset only updates&redraws once
+		this._postponeUpdatePaths = true;
+	},
 
 	onAdd: function () {
 		L.Renderer.prototype.onAdd.call(this);
@@ -28598,6 +28807,8 @@ L.Canvas = L.Renderer.extend({
 	},
 
 	_updatePaths: function () {
+		if (this._postponeUpdatePaths) { return; }
+
 		var layer;
 		this._redrawBounds = null;
 		for (var id in this._layers) {
@@ -28636,6 +28847,15 @@ L.Canvas = L.Renderer.extend({
 
 		// Tell paths to redraw themselves
 		this.fire('update');
+	},
+
+	_reset: function () {
+		L.Renderer.prototype._reset.call(this);
+
+		if (this._postponeUpdatePaths) {
+			this._postponeUpdatePaths = false;
+			this._updatePaths();
+		}
 	},
 
 	_initPath: function (layer) {
@@ -28723,6 +28943,11 @@ L.Canvas = L.Renderer.extend({
 
 	_redraw: function () {
 		this._redrawRequest = null;
+
+		if (this._redrawBounds) {
+			this._redrawBounds.min._floor();
+			this._redrawBounds.max._ceil();
+		}
 
 		this._clear(); // clear layers in redraw bounds
 		this._draw(); // draw layers
@@ -30087,6 +30312,7 @@ L.extend(L.DomEvent, {
 			var count;
 
 			if (L.Browser.pointer) {
+				if ((!L.Browser.edge) || e.pointerType === 'mouse') { return; }
 				count = L.DomEvent._pointersCount;
 			} else {
 				count = e.touches.length;
@@ -30102,9 +30328,11 @@ L.extend(L.DomEvent, {
 			last = now;
 		}
 
-		function onTouchEnd() {
+		function onTouchEnd(e) {
 			if (doubleTap && !touch.cancelBubble) {
 				if (L.Browser.pointer) {
+					if ((!L.Browser.edge) || e.pointerType === 'mouse') { return; }
+
 					// work around .type being readonly with MSPointer* events
 					var newTouch = {},
 					    prop, i;
@@ -30132,12 +30360,11 @@ L.extend(L.DomEvent, {
 		obj.addEventListener(touchstart, onTouchStart, false);
 		obj.addEventListener(touchend, onTouchEnd, false);
 
-		// On some platforms (notably, chrome on win10 + touchscreen + mouse),
+		// On some platforms (notably, chrome<55 on win10 + touchscreen + mouse),
 		// the browser doesn't fire touchend/pointerup events but does fire
 		// native dblclicks. See #4127.
-		if (!L.Browser.edge) {
-			obj.addEventListener('dblclick', handler, false);
-		}
+		// Edge 14 also fires native dblclicks, but only for pointerType mouse, see #5180.
+		obj.addEventListener('dblclick', handler, false);
 
 		return this;
 	},
@@ -30212,7 +30439,7 @@ L.extend(L.DomEvent, {
 
 	_addPointerStart: function (obj, handler, id) {
 		var onDown = L.bind(function (e) {
-			if (e.pointerType !== 'mouse' && e.pointerType !== e.MSPOINTER_TYPE_MOUSE) {
+			if (e.pointerType !== 'mouse' && e.MSPOINTER_TYPE_MOUSE && e.pointerType !== e.MSPOINTER_TYPE_MOUSE) {
 				// In IE11, some touch events needs to fire for form controls, or
 				// the controls will stop working. We keep a whitelist of tag names that
 				// need these events. For other target tags, we prevent default on the event.
@@ -31678,7 +31905,8 @@ L.Control.Layers = L.Control.extend({
 
 	_initLayout: function () {
 		var className = 'leaflet-control-layers',
-		    container = this._container = L.DomUtil.create('div', className);
+		    container = this._container = L.DomUtil.create('div', className),
+		    collapsed = this.options.collapsed;
 
 		// makes this work on IE touch devices by stopping it from firing a mouseout event when the touch is released
 		container.setAttribute('aria-haspopup', true);
@@ -31690,11 +31918,15 @@ L.Control.Layers = L.Control.extend({
 
 		var form = this._form = L.DomUtil.create('form', className + '-list');
 
-		if (!L.Browser.android) {
-			L.DomEvent.on(container, {
-				mouseenter: this.expand,
-				mouseleave: this.collapse
-			}, this);
+		if (collapsed) {
+			this._map.on('click', this.collapse, this);
+
+			if (!L.Browser.android) {
+				L.DomEvent.on(container, {
+					mouseenter: this.expand,
+					mouseleave: this.collapse
+				}, this);
+			}
 		}
 
 		var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
@@ -31714,10 +31946,9 @@ L.Control.Layers = L.Control.extend({
 			setTimeout(L.bind(this._onInputClick, this), 0);
 		}, this);
 
-		this._map.on('click', this.collapse, this);
 		// TODO keyboard accessibility
 
-		if (!this.options.collapsed) {
+		if (!collapsed) {
 			this.expand();
 		}
 
