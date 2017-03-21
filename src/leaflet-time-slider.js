@@ -18,20 +18,19 @@
         options: {
             VERSION       : "{VERSION}",
             toggleDisplay : true,
-            icon          : 'clock',
+            iconClassName : 'fa-clock-o',
             lang          : 'da',
             displayAsLocal: true,
             step          : 1,
             step_offset   : 0,
             hideText      : '',
             width         : 300,        
-            height        : 154,
+            height        : 154
         },
 
         //initialize
         initialize: function(options) {
             L.Control.Box.prototype.initialize.call(this, options );
-            this.options.showText = this.options.lang == 'da' ? 'V'+String.fromCharCode(230)+'lg tidspunkt' : 'Select time and date';
         },
 
         //addTo
@@ -52,8 +51,10 @@
             var langDa = (this.options.lang == 'da');
             
             //Adjust the container
-            var $container = $(this.userContainer);
-            $container.css('padding','4px');
+//            var $container = $(this.userContainer);
+            var $container = $(this.contentContainer);
+
+            //$container.css('padding','44px');
 
             //Append the div with current time
             $container.append(

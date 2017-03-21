@@ -132,14 +132,3 @@ Copyright (c) 2015 [FCOO](https://github.com/FCOO)
 Niels Holt nho@fcoo.dk
 
 
-## Credits and acknowledgements
-
-
-## Known bugs
-
-## Troubleshooting
-
-## Changelog
-
-
-
