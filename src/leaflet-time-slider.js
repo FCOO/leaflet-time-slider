@@ -1,5 +1,5 @@
 /****************************************************************************
-    leaflet-time-slider.js, 
+    leaflet-time-slider.js,
 
     (c) 2015, FCOO
 
@@ -13,18 +13,19 @@
     //Extend base leaflet class
     L.Control.TimeSlider = L.Control.Box.extend({
 
-        
-    //Default options    
+
+    //Default options
         options: {
             VERSION       : "{VERSION}",
             toggleDisplay : true,
             iconClassName : 'fa-clock-o',
             lang          : 'da',
+            minimized     : false,
             displayAsLocal: true,
             step          : 1,
-            step_offset   : 0,
+            stepOffset    : 0,
             hideText      : '',
-            width         : 300,        
+            width         : 390, //300,
             height        : 154
         },
 
@@ -34,13 +35,13 @@
         },
 
         //addTo
-        addTo: function (map) { 
-            L.Control.Box.prototype.addTo.call(this, map); 
+        addTo: function (map) {
+            L.Control.Box.prototype.addTo.call(this, map);
             this._create();
             return this;
         },
 
-        onAdd: function (map) { 
+        onAdd: function (map) {
             var result = L.Control.Box.prototype.onAdd.call(this, map );
             return result;
         },
@@ -49,7 +50,7 @@
         _create: function() {
 
             var langDa = (this.options.lang == 'da');
-            
+
             //Adjust the container
 //            var $container = $(this.userContainer);
             var $container = $(this.contentContainer);
@@ -81,36 +82,39 @@
 
             //
             var timeSliderOptions = {
-                    type   : 'single',        
-                    slider : 'small',
+                    type   : 'single',
                     display: { from: { tzElement: ('#currentMomentLocal'), utcElement: $('#currentMomentUTC') } },
                     buttons: { from: { firstBtn:'tsFirst', previousBtn:'tsPrev', nowBtn:'tsNow', nextBtn:'tsNext', lastBtn:'tsLast'} },
+
+                    markerFrame: true,
 
                     minMoment : this.options.minMoment,
                     maxMoment : this.options.maxMoment,
                     fromMoment: this.options.fromMoment,
-            
+
                     min : this.options.min,
                     max : this.options.max,
                     from: this.options.from,
 
-                    step              : this.options.step,
-                    step_offset       : this.options.step_offset,
-                    step_offset_moment: this.options.step_offset_moment,
+                    step            : this.options.step,
+                    stepOffset      : this.options.stepOffset,
+                    stepOffsetMoment: this.options.stepOffsetMoment,
 
-                    callback_on_dragging: false,    
-                    hide_bar_color      : true,
+                    onChangeOnDragging: false,
+                    showLineColor     : false,
+                    lineColors        : [{ to: 0, color: '#7ABAE1'}, {color:'#4D72B8'}],
+
+                    labelColors       : [{value:0, backgroundColor:'green', color:'white'}],
 
                     format: {date: 'DMY', time: '24', showRelative: false, timezone: 'local', showUTC: false },
 
-                    callback: this.options.callback
+                    onChange: this.options.onChange || this.options.callback
                 };
-
             this.timeSlider = $sliderInput.timeSlider( timeSliderOptions ).data('timeSlider');
 
             var $localCheckboxContainer = $('<div style="text-align:left; margin:0; width:100%;"></div>').appendTo($container),
                 $localCheckbox = $('<input id="tsLocal" type="checkbox" class="input-check" '+(this.options.displayAsLocal?'checked':'')+'/>'),
-                onChange = function(){ 
+                onChange = function(){
                     var controlBox = $(this).data('controlbox'),
                         timeSlider = controlBox.timeSlider;
 
@@ -118,14 +122,14 @@
                         $('.only_local').show(); $('.only_utc').hide();
                         moment.sfSetFormat({ timezone: 'local' });
                         timeSlider.setFormat();
-                    }    
+                    }
                     else {
                         $('.only_local').hide(); $('.only_utc').show();
                         moment.sfSetFormat({ timezone: 'utc' });
                         timeSlider.setFormat();
                     }
                     if (controlBox.options.callbackLocal)
-                        controlBox.options.callbackLocal( this.checked );                          
+                        controlBox.options.callbackLocal( this.checked );
                 };
 
             $localCheckbox.data('controlbox', this );
@@ -144,7 +148,7 @@
             ]);
 
             //Update time-slider
-            onChange.call( $localCheckbox.get(0) ); 
+            onChange.call( $localCheckbox.get(0) );
         }
     });
 

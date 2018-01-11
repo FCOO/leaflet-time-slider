@@ -13,9 +13,6 @@
         "moment"    : false,
         "Raven"     : false
     },
-
-    "allowInlineConfig": true,
-
     "rules": {
         "strict"                  : "error",
         "camelcase"               : "off",
