@@ -83,8 +83,8 @@
             //
             var timeSliderOptions = {
                     type   : 'single',
-                    display: { from: { tzElement: ('#currentMomentLocal'), utcElement: $('#currentMomentUTC') } },
-                    buttons: { from: { firstBtn:'tsFirst', previousBtn:'tsPrev', nowBtn:'tsNow', nextBtn:'tsNext', lastBtn:'tsLast'} },
+                    display: { value: { tzElement: ('#currentMomentLocal'), utcElement: $('#currentMomentUTC') } },
+                    buttons: { value: { firstBtn:'tsFirst', previousBtn:'tsPrev', nowBtn:'tsNow', nextBtn:'tsNext', lastBtn:'tsLast'} },
 
                     markerFrame: true,
 
