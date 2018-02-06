@@ -25,8 +25,8 @@
             step          : 1,
             stepOffset    : 0,
             hideText      : '',
-            width         : 390, //300,
-            height        : 154
+            width         : 390,
+            height        : 180
         },
 
         //initialize
@@ -65,16 +65,21 @@
                 '</div>');
 
             //Append buttons
-            var $buttonContainer = $('<div style="text-align:center; margin:0; width:100%;"></div>').appendTo($container),
-                    buttonClass = 'btn'; //'btn btn-default btn-lg';
+            window.bsIsTouch = true;
 
-            $buttonContainer.append([
-                '<button id="tsFirst" class="'+buttonClass+'"><i class="fa fa-fast-backward"></i></button>',
-                '<button id="tsPrev"  class="'+buttonClass+'"><i class="fa fa-step-backward"></i></button>',
-                '<button id="tsNow"   class="'+buttonClass+'"><span class="fa">' + (langDa ? 'Nu' : 'Now') + '</span></button>',
-                '<button id="tsNext"  class="'+buttonClass+'"><i class="fa fa-step-forward"></i></button>',
-                '<button id="tsLast"  class="'+buttonClass+'"><i class="fa fa-fast-forward"></i></button>'
-            ]);
+            var $buttonContainer = $('<div style="text-align:center; margin:4px; margin-bottom:8px; width:100%;"></div>').appendTo($container);
+            $.bsButtonGroup({
+                useTouchSize: false,
+                buttonOptions: {tagName:'button'},
+                list: [
+                    {id:'tsFirst', icon:'fa-fast-backward'},
+                    {id:'tsPrev', icon:'fa-step-backward'},
+                    {id:'tsNow', text: {da:'Nu', en:'Now'}},
+                    {id:'tsNext', icon:'fa-step-forward'},
+                    {id:'tsLast', icon:'fa-fast-forward'}
+                ]
+            })
+                .appendTo($buttonContainer);
 
             //Create the time-slider
             var $sliderContainer = $('<div style="width:100%; height:80px"></div>').appendTo( $container ),
