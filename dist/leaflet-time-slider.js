@@ -16,7 +16,7 @@
 
     //Default options
         options: {
-            VERSION       : "4.1.0",
+            VERSION       : "4.1.1",
             toggleDisplay : true,
             iconClassName : 'fa-clock-o',
             lang          : 'da',
@@ -69,14 +69,13 @@
 
             var $buttonContainer = $('<div style="text-align:center; margin:4px; margin-bottom:8px; width:100%;"></div>').appendTo($container);
             $.bsButtonGroup({
-                useTouchSize: false,
                 buttonOptions: {tagName:'button'},
                 list: [
-                    {id:'tsFirst', icon:'fa-fast-backward'},
-                    {id:'tsPrev', icon:'fa-step-backward'},
-                    {id:'tsNow', text: {da:'Nu', en:'Now'}},
-                    {id:'tsNext', icon:'fa-step-forward'},
-                    {id:'tsLast', icon:'fa-fast-forward'}
+                    {id:'tsFirst', icon:'fa-fast-backward'  },
+                    {id:'tsPrev',  icon:'fa-step-backward'  },
+                    {id:'tsNow',   text: {da:'Nu', en:'Now'}},
+                    {id:'tsNext',  icon:'fa-step-forward'   },
+                    {id:'tsLast',  icon:'fa-fast-forward'   }
                 ]
             })
                 .appendTo($buttonContainer);
