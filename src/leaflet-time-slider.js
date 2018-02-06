@@ -92,13 +92,17 @@
 
                     markerFrame: true,
 
-                    minMoment : this.options.minMoment,
-                    maxMoment : this.options.maxMoment,
-                    fromMoment: this.options.fromMoment,
+                    minMoment  : this.options.minMoment,
+                    maxMoment  : this.options.maxMoment,
+                    fromMoment : this.options.fromMoment,
+                    toMoment   : this.options.toMoment,
+                    valueMoment: this.options.valieMoment,
 
-                    min : this.options.min,
-                    max : this.options.max,
-                    from: this.options.from,
+                    min  : this.options.min,
+                    max  : this.options.max,
+                    from : this.options.from,
+                    to   : this.options.to,
+                    value: this.options.value,
 
                     step            : this.options.step,
                     stepOffset      : this.options.stepOffset,
