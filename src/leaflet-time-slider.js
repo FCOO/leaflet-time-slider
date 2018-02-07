@@ -96,7 +96,7 @@
                     maxMoment  : this.options.maxMoment,
                     fromMoment : this.options.fromMoment,
                     toMoment   : this.options.toMoment,
-                    valueMoment: this.options.valieMoment,
+                    valueMoment: this.options.valueMoment,
 
                     min  : this.options.min,
                     max  : this.options.max,

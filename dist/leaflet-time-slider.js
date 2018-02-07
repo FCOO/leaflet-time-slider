@@ -16,7 +16,7 @@
 
     //Default options
         options: {
-            VERSION       : "4.1.2",
+            VERSION       : "4.1.3",
             toggleDisplay : true,
             iconClassName : 'fa-clock-o',
             lang          : 'da',
@@ -96,7 +96,7 @@
                     maxMoment  : this.options.maxMoment,
                     fromMoment : this.options.fromMoment,
                     toMoment   : this.options.toMoment,
-                    valueMoment: this.options.valieMoment,
+                    valueMoment: this.options.valueMoment,
 
                     min  : this.options.min,
                     max  : this.options.max,
