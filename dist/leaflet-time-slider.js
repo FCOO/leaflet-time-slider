@@ -16,7 +16,7 @@
 
     //Default options
         options: {
-            VERSION       : "4.1.3",
+            VERSION       : "4.1.4",
             toggleDisplay : true,
             iconClassName : 'fa-clock-o',
             lang          : 'da',
@@ -65,8 +65,6 @@
                 '</div>');
 
             //Append buttons
-            window.bsIsTouch = true;
-
             var $buttonContainer = $('<div style="text-align:center; margin:4px; margin-bottom:8px; width:100%;"></div>').appendTo($container);
             $.bsButtonGroup({
                 buttonOptions: {tagName:'button'},
