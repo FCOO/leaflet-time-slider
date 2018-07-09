@@ -16,9 +16,9 @@
 
     //Default options
         options: {
-            VERSION       : "4.1.4",
+            VERSION       : "4.2.0",
             toggleDisplay : true,
-            iconClassName : 'fa-clock-o',
+            iconClassName : 'far fa-clock',
             lang          : 'da',
             minimized     : false,
             displayAsLocal: true,
@@ -79,7 +79,7 @@
                 .appendTo($buttonContainer);
 
             //Create the time-slider
-            var $sliderContainer = $('<div style="width:100%; height:80px"></div>').appendTo( $container ),
+            var $sliderContainer = $('<div style="width:100%"></div>').appendTo( $container ),
                 $sliderInput     = $('<input/>').appendTo( $sliderContainer );
 
             //
